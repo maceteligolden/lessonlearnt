@@ -1,99 +1,122 @@
 export const sendFilePromptToOpenAI = async (file: File): Promise<string> => {
   const fileContent = await file.text();
 
-  const payload = {
-    role: "expert-level strategist",
-    department: "any department",
-    task: "Create a Lessons Learned Report",
-    task_description:
-      "As a skilled contributor, your task is to create a Lessons Learned Report that helps improve future processes, decisions, or outcomes. The report should be comprehensive and provide actionable insights for the intended team or organization. The finished work will be used to identify areas of improvement and optimize future outcomes. Core success factors include thorough analysis, clear recommendations, and practical solutions, and will be measured by its ability to drive positive change.",
-    prompt:
-      "Develop a tailored Lessons Learned Report aligned with the user's individual needs, drawing insights from the supplied reference materials. Initiate interaction with the user to obtain essential specifics and resolve any ambiguities. Iteratively refine the Lessons Learned Report through consistent evaluations using the given evaluationRubric and gather user input to ensure the end product aligns with the users expectations. You MUST FOLLOW the rules in order.",
-    fileContent,
-    key_references: {
-      key_reference_1_title: "The Lean Startup: How Today's Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses",
-      key_reference_1_author: "Eric Ries",
-      key_reference_1_year: "2011",
-      key_reference_1_keyinsights: [
-        "The importance of conducting thorough analysis and experimentation to identify areas of improvement in any process.",
-        "The concept of a Minimum Viable Product (MVP) and how it can be applied to test and iterate quickly.",
-        "The Build-Measure-Learn feedback loop and how it can help in gathering data and insights to drive positive changes.",
-      ],
-      key_reference_2_title: "The Customer Success Professional's Handbook",
-      key_reference_2_author: "Ashvin Vaidyanathan",
-      key_reference_2_year: "2019",
-      key_reference_2_keyinsights: [
-        "The importance of understanding user or stakeholder needs and expectations during process development.",
-        "The use of metrics and KPIs to measure success rates.",
-        "Strategies for creating personalized solutions based on segmentation and goals.",
-      ],
-      key_reference_3_title: "The Four Steps to the Epiphany",
-      key_reference_3_author: "Steve Blank",
-      key_reference_3_year: "2005",
-      key_reference_3_keyinsights: [
-        "The importance of development and validation to identify the right audience and their specific needs.",
-        "The Customer Development Process as a method to optimize outcomes.",
-        "The significance of continuous learning and iteration to drive improvement and success.",
-      ],
-    },
-    criteria: {
-      criteria_1: {
-        name: "Thorough Analysis",
-        description:
-          "Work should demonstrate a deep understanding of the problem or process by conducting a comprehensive analysis. This includes identifying key issues, evaluating current practices, and examining data to uncover insights that can drive improvements.",
-      },
-      criteria_2: {
-        name: "Clear Recommendations",
-        description:
-          "Report should provide clear and concise recommendations based on the analysis conducted. These should be specific, actionable, and logically organized.",
-      },
-      criteria_3: {
-        name: "Practical Solutions",
-        description:
-          "Work should propose feasible, realistic solutions aligned with goals and available resources. Include rationale for how these solutions will drive positive change.",
-      },
-      criteria_4: {
-        name: "Use of Reference Material",
-        description:
-          "Effectively apply knowledge from external references to enhance the work’s relevance and quality.",
-      },
-      criteria_5: {
-        name: "Point of View from an Industry Expert",
-        description:
-          "Demonstrates in-depth knowledge and expertise aligned with best practices, standards, and expectations.",
-      },
-      criteria_6: {
-        name: "Overall Rating",
-        description:
-          "A holistic assessment considering all the above criteria.",
-      },
-    },
-    evaluationRubric: {
-      "1": "Poor: Fundamental flaws present. No redeeming qualities.",
-      "2": "Subpar: Slightly better than level 1, but foundational errors remain.",
-      "3": "Incomplete: Main components are missing or rushed.",
-      "4": "Basic: Meets some requirements but lacks depth.",
-      "5": "Average: Adequate but unremarkable execution.",
-      "6": "Above Average: Good effort, some depth, but not yet nuanced.",
-      "7": "Proficient: Comprehensive with few minor errors.",
-      "7.5": "Highly Proficient: Deep understanding with occasional insights.",
-      "8": "Distinguished: Mastery evident, with innovation and clarity.",
-      "8.5": "Almost Exemplary: Rich, detailed, and almost flawless.",
-      "9": "Exemplary: Innovative, precise, and a benchmark for others.",
-      "9.5": "Superior Exemplary: Exceptional mastery with dazzling clarity.",
-      "10": "Outstanding: Perfect. Sets an unmatched standard.",
-    },
-    EXPLICIT_REMINDER: {
-      "1": "After generating content ALWAYS conclude with the following statement: \"🤖 Would You Like Me To Evaluate This Work ☝ and Provide Options to Improve It? Yes or No?\"",
-    },
-  };
+  const fullPrompt = `
+You are a world-class strategic analyst tasked with writing a Lessons Learned Report using the structure and guardrails below.
 
-  const response = await fetch("/api/openai", {
+You MUST follow the format exactly. Each major section (marked by Roman numerals I–IX) represents a key part of the report. Each subsection (marked A, B, C...) contains instructions on what to write under that part.
+
+You MUST:
+1. Use the headings exactly as they appear.
+3. NEVER skip or invent sections. If something is unknown, write "Not available" or make a clear, reasonable assumption.
+4. Draw only from the uploaded file and the provided key references.
+5. Each section is labeled using Roman numerals (I., II., III., etc.)
+6. Within each section, follow and respect the meaning of each alphabetical list item (A., B., C., etc.) — these are guidelines that define the structure of the content for that section.
+7. Only use HTML tags to format the report:
+   - Use <h2> for section titles (I., II., III.)
+   - Use <strong> for alphabetical subpoints (A., B., C.)
+   - Use <p> for paragraphs
+   - Use <br> for line breaks
+   - Use <ul><li> for bullet lists where necessary
+8. Do not include any markdown syntax or extra wrappers (like <html>, <body>, etc.)
+9. At the end of the report, include a short expert summary under a heading: <h2>Expert Summary</h2>
+
+---
+
+📄 FILE CONTENT TO ANALYZE:
+${fileContent}
+
+📚 KEY REFERENCES (use insights to strengthen findings):
+- Eric Ries, *The Lean Startup* (2011):
+  - Focus on experimentation, MVPs, and the Build-Measure-Learn loop.
+- Ashvin Vaidyanathan, *The Customer Success Professional’s Handbook* (2019):
+  - Understand stakeholder needs, use metrics/KPIs, and personalize solutions.
+- Steve Blank, *The Four Steps to the Epiphany* (2005):
+  - Customer Development process, validation, and continuous iteration.
+
+---
+
+✍️ FORMAT TO FOLLOW (NO CHANGES ALLOWED — FILL IN EACH SECTION):
+
+---
+Detailed Outline for a Lessons Learned Report
+
+I. Introduction  
+A. Purpose of the Lessons Learned Report  
+B. Background information on the project or task  
+C. Objectives of the report  
+
+II. Methodology  
+A. Explanation of the data collection process  
+B. Identification of the sources of information (interviews, surveys, project documentation, etc.)  
+C. Description of the criteria used to evaluate lessons learned  
+
+III. Findings  
+A. Summary of the lessons learned  
+B. Categorization of the lessons learned into different areas (e.g., project management, communication, technical aspects, etc.)  
+C. Detailed description of each lesson learned, including:  
+- What went well  
+- What did not go well  
+- Factors contributing to the success or failure  
+- Impact of the lesson learned on the project or task  
+- Recommendations for improvement  
+
+IV. Analysis  
+A. Comparison of the lessons learned with initial project objectives and plans  
+B. Identification of patterns or common themes among the lessons learned  
+C. Assessment of the significance and relevance of each lesson learned  
+
+V. Conclusions  
+A. Summary of the key findings and analysis  
+B. Identification of the most critical lessons learned  
+C. Overall assessment of the project or task based on the lessons learned  
+
+VI. Recommendations  
+A. Specific actions to be taken based on the lessons learned  
+B. Prioritization of the recommendations  
+C. Assignment of responsibility for implementing the recommendations  
+
+VII. Lessons Learned Implementation Plan  
+A. Development of an action plan for implementing the recommendations  
+B. Timeline for implementing each recommendation  
+C. Monitoring and evaluation mechanisms to ensure the effectiveness of the implementation  
+
+VIII. Lessons Learned Documentation  
+A. Archiving of the lessons learned report and related documents  
+B. Communication of the lessons learned to relevant stakeholders  
+C. Integration of the lessons learned into future projects or tasks  
+
+IX. Conclusion  
+A. Summary of the report  
+B. Acknowledgment of the contributors and stakeholders  
+C. Final thoughts and closing remarks  
+---
+
+📈 After completing the report, write a separate section titled:
+**Expert Analysis Based on Lessons Learned**
+In this section, provide a high-level summary from the point of view of a strategist, analyzing how the key findings can lead to broader process, product, or team improvements.
+
+Do NOT add anything beyond the format above. Do NOT add a table of contents, rating, title, author name, or markdown formatting.
+
+🤖 Would You Like Me To Evaluate This Work ☝ and Provide Options to Improve It? Yes or No?
+`;
+
+  const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      model: "o4-mini",
+      reasoning: { effort: "medium" },
+      input: [
+        {
+          role: "user",
+          content: fullPrompt,
+        },
+      ],
+    }),
   });
 
   if (!response.ok) {
@@ -101,5 +124,5 @@ export const sendFilePromptToOpenAI = async (file: File): Promise<string> => {
   }
 
   const data = await response.json();
-  return data.result;
+  return data.output_text;
 };
