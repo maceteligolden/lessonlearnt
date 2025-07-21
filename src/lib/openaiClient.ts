@@ -1,6 +1,6 @@
 export const sendFilePromptToOpenAI = async (file: File): Promise<string> => {
   const fileContent = await file.text();
-
+   
   const fullPrompt = `
 You are a world-class strategic analyst tasked with writing a Lessons Learned Report using the structure and guardrails below.
 
@@ -118,11 +118,12 @@ Do NOT add anything beyond the format above. Do NOT add a table of contents, rat
       ],
     }),
   });
-
+ 
   if (!response.ok) {
     throw new Error("Failed to get response from OpenAI.");
   }
 
   const data = await response.json();
-  return data.output_text;
+
+  return data.output[1].content[0].text;
 };
