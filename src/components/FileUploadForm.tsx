@@ -19,7 +19,7 @@ export default function FileUploadForm() {
 
     try {
       const result = await sendFilePromptToOpenAI(file);
-      console.log(result)
+  
       dispatch({ type: "SET_RESPONSE", payload: result });
     } catch (error: any) {
       dispatch({ type: "SET_ERROR", payload: error.message });

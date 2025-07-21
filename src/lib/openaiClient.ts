@@ -124,6 +124,6 @@ Do NOT add anything beyond the format above. Do NOT add a table of contents, rat
   }
 
   const data = await response.json();
-
+  console.log("OpenAI response:", JSON.stringify(data));
   return data.output[1].content[0].text;
 };
